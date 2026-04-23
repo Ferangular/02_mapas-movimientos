@@ -25,13 +25,29 @@
 
     <script>
       // Crear cookies
-      const session = {
-        id: 1,
-        sessionId: 'Abc123',
+      // const session = {
+      //   id: 1,
+      //   sessionId: 'Abc123',
+      // };
+      // const jwtToken = 'MiToken-JWT';
+      // document.cookie = `session=${JSON.stringify(session)}`;
+      // document.cookie = `X-Token=${jwtToken}`;
+
+      const name = 'John Doe';
+      const color = 'indigo';
+      const coords = {
+        lat: 10,
+        lng: 10,
       };
-      const jwtToken = 'MiToken-JWT';
-      document.cookie = `session=${JSON.stringify(session)}`;
-      document.cookie = `X-Token=${jwtToken}`;
+
+      document.cookie = `name=${name}`;
+      document.cookie = `color=${color}`;
+      document.cookie = `coords=${JSON.stringify(coords)}`; // [Object object]
+
+      let message = {
+        type: 'GET_CLIENTS',
+        payload: {},
+      };
 
       let socket;
 
@@ -47,7 +63,7 @@
         const channelId = 'mi-canal-personalizado';
 
         const socket = new WebSocket(
-          `ws://localhost:3200?channelId=${channelId}`
+                `ws://localhost:3200?channelId=${channelId}`
         );
 
         socket.onopen = () => {
