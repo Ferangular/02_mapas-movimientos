@@ -1,0 +1,21 @@
+{
+  "name": "03-sockets-maps",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "kill-port": "for /f \"tokens=5\" %a in ('netstat -ano ^| findstr :3200') do taskkill /PID %a /F",
+    "start": "kill-port 3200 && bun src/index.ts",
+    "dev": "kill-port 3200 && bun --hot src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "kill-port": "^2.0.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
