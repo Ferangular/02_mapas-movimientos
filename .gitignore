@@ -11,11 +11,48 @@
 03-sockets-maps/out/
 03-sockets-maps/.env
 
-
 # Frontend (Angular)
-
-
-# Angular specific
+angular-socket-map/.angular/
+angular-socket-map/dist/
+angular-socket-map/build/
+angular-socket-map/out/
+angular-socket-map/tmp/
+angular-socket-map/out-tsc/
+angular-socket-map/bazel-out/
+angular-socket-map/node_modules/
+angular-socket-map/npm-debug.log*
+angular-socket-map/yarn-debug.log*
+angular-socket-map/yarn-error.log*
+angular-socket-map/pnpm-debug.log*
+angular-socket-map/lerna-debug.log*
+angular-socket-map/.env
+angular-socket-map/.env.local
+angular-socket-map/.env.development.local
+angular-socket-map/.env.test.local
+angular-socket-map/.env.production.local
+angular-socket-map/coverage/
+angular-socket-map/*.lcov
+angular-socket-map/.nyc_output
+angular-socket-map/.cache/
+angular-socket-map/.parcel-cache/
+angular-socket-map/.eslintcache
+angular-socket-map/*.tsbuildinfo
+angular-socket-map/.vite/
+angular-socket-map/.jest/
+angular-socket-map/storybook-static/
+angular-socket-map/.sass-cache/
+angular-socket-map/connect.lock
+angular-socket-map/libpeerconnection.log
+angular-socket-map/testem.log
+angular-socket-map/typings/
+angular-socket-map/__screenshots__/
+angular-socket-map/.history/
+angular-socket-map/.project
+angular-socket-map/.classpath
+angular-socket-map/.c9/
+angular-socket-map/*.launch
+angular-socket-map/.settings/
+angular-socket-map/*.sublime-workspace
 
 # OS generated files
 .DS_Store
