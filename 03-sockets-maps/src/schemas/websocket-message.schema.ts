@@ -8,7 +8,7 @@ const latLngSchema = z.object({
 export const messageSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('GET_CLIENTS'),
-    payload: z.undefined().optional(),
+    payload: z.any().optional(),
   }),
 
   z.object({

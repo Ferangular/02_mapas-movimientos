@@ -1,0 +1,28 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed()">
+
+<header class="sidebar-header">
+  <img src="" alt="">
+  <button class="toggle-btn" (click)="toggleSidebar()">
+    {{ isCollapsed() ? '→' : '←' }}
+  </button>
+
+</header>
+
+  <div class="sidebar-content">
+    <connect-form (formSubmitted)="connectForm($event)"/>
+    
+    @if (markerPosition().lat !== 0 && markerPosition().lng !== 0) {
+      <div class="coords-display">
+        <h4>📍 Tu Posición</h4>
+        <div class="coords">
+          <span class="coord-item">
+            <strong>Lat:</strong> {{ markerPosition().lat.toFixed(6) }}
+          </span>
+          <span class="coord-item">
+            <strong>Lng:</strong> {{ markerPosition().lng.toFixed(6) }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+</aside>

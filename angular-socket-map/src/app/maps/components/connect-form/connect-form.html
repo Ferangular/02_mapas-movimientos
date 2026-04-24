@@ -1,0 +1,25 @@
+<form (submit)="onSubmit($event)">
+  <div class="form-group">
+    <label for="name">
+      <span class="icon">👤</span>
+      Nombre
+    </label>
+    <input type="text" placeholder="Ingresa tu nombre" [formField]="connectForm.name" />
+  </div>
+
+  <div class="form-group">
+    <label for="color">
+      <span class="icon">🎨</span>
+      Color
+    </label>
+    <div class="color-input-wrapper">
+      <input type="color" [formField]="connectForm.color" />
+      <span class="color-preview" [style.background-color]="connectFormModel().color"></span>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="connectForm().invalid()" class="submit-btn">
+    <span class="btn-icon">🚀</span>
+    Conectar al Mapa
+  </button>
+</form>

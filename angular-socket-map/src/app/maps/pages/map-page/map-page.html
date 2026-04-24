@@ -1,0 +1,8 @@
+<app-header />
+<app-sidebar (formSubmitted)="connectForm($event)" (sidebarStateChanged)="onSidebarStateChanged($event)" (colorChanged)="onColorChanged($event)" />
+
+<custom-map
+  (centerChanged)="mapCenter.set($event)"
+  (coordsSelected)="selectedCoords.set($event)"
+  (markerMoved)="onMarkerMoved($event)"
+/>

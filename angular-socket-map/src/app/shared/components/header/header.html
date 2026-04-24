@@ -1,0 +1,10 @@
+<header class="header">
+  <div class="logo">
+    🗺️ Mapa en Tiempo Real
+  </div>
+  
+  <div class="connection-indicator">
+    <span class="status-dot" [class]="getStatusClass()"></span>
+    <span>{{ getStatusText() }}</span>
+  </div>
+</header>
