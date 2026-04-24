@@ -105,37 +105,63 @@ export class CustomMap implements AfterViewInit {
   // public center = output<LatLng>();
 
   private  onMessage$ = this.websocketService.onMessage.subscribe((message) => {
+    console.log('📨 Mensaje recibido:', message.type, message.payload);
+    
     switch (message.type) {
       case 'WELCOME':
         // Guardar los datos del usuario pero no crear el marker todavía
         // El marker se creará cuando el usuario haga clic en el mapa por primera vez
         console.log('👋 Usuario conectado, esperando primera posición:', message.payload);
         console.log('🗺️ Haz clic en el mapa para crear tu marker');
+        console.log('🆔 ID del usuario actual:', message.payload.clientId);
         this.currentUser = message.payload;
+        
+        // Intentar restaurar el marker desde cookies si existen
+        this.restoreUserMarkerFromCookies();
         break;
 
       case 'CLIENTS_STATE':
+        console.log('👥 CLIENTS_STATE recibido:', message.payload);
+        console.log('🔍 Usuario actual:', this.currentUser?.clientId);
+        console.log('🗺️ Markers actuales:', this.markers.size);
+        
         // Solo crear markers para otros usuarios, no para el actual
-        const otherClients = message.payload.filter(client => 
-          client.clientId !== this.currentUser?.clientId
-        );
+        const otherClients = message.payload.filter(client => {
+          const isNotCurrentUser = client.clientId !== this.currentUser?.clientId;
+          const alreadyHasMarker = this.markers.has(client.clientId);
+          console.log(`🔍 Cliente ${client.clientId}: noEsActual=${isNotCurrentUser}, yaTieneMarker=${alreadyHasMarker}`);
+          return isNotCurrentUser && !alreadyHasMarker;
+        });
+        
+        console.log('🎯 Clientes a procesar:', otherClients.length, otherClients.map(c => c.clientId));
+        
         if (otherClients.length > 0) {
           this.createMarkers(otherClients);
         }
         break;
 
       case 'CLIENT_JOINED':
-        // Solo crear marker si no es el usuario actual
-        if (message.payload.clientId !== this.currentUser?.clientId) {
+        console.log('🆕 CLIENT_JOINED recibido:', message.payload);
+        console.log('🔍 ¿Es usuario actual?', message.payload.clientId === this.currentUser?.clientId);
+        console.log('🗺️ ¿Ya tiene marker?', this.markers.has(message.payload.clientId));
+        
+        // Solo crear marker si no es el usuario actual y no tiene marker
+        if (message.payload.clientId !== this.currentUser?.clientId && !this.markers.has(message.payload.clientId)) {
           this.createMarkers([message.payload]);
         }
         break;
 
       case 'CLIENT_MOVED':
+        console.log('🏃 CLIENT_MOVED recibido:', message.payload);
+        console.log('🗺️ ¿Existe marker?', this.markers.has(message.payload.clientId));
+        
         this.updateMarkerCoords(message.payload.clientId, message.payload.coords);
         break;
 
       case 'CLIENT_LEFT':
+        console.log('👋 CLIENT_LEFT recibido:', message.payload);
+        console.log('🗺️ ¿Existe marker para eliminar?', this.markers.has(message.payload.clientId));
+        
         this.removeMarker(message.payload.clientId);
         break;
     }
@@ -338,6 +364,76 @@ export class CustomMap implements AfterViewInit {
     if (!marker) return;
 
     marker.setLngLat(latLng);
+  }
+
+  private restoreUserMarkerFromCookies() {
+    if (!this.currentUser || !this.map) {
+      console.log('❌ No se puede restaurar marker: usuario o mapa no disponibles');
+      return;
+    }
+
+    // Verificar si ya existe un marker para el usuario actual
+    if (this.markers.has(this.currentUser.clientId)) {
+      console.log('✅ Marker del usuario ya existe, no es necesario restaurar');
+      return;
+    }
+
+    // Obtener coordenadas desde cookies
+    const coordsCookie = Cookies.get('coords');
+    const colorCookie = Cookies.get('color');
+    
+    if (coordsCookie) {
+      try {
+        const coords = JSON.parse(coordsCookie);
+        console.log('🔄 Restaurando marker desde cookies:', { coords, color: colorCookie });
+        
+        // Usar el color de las cookies o el del usuario actual
+        const markerColor = colorCookie || this.currentUser.color;
+        
+        // Crear el marker restaurado
+        const marker = new mapboxgl.Marker({
+          color: markerColor,
+          draggable: true,
+        })
+          .setLngLat(coords)
+          .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${this.currentUser.name}</h3>`))
+          .on('dragend', () => {
+            Cookies.set('coords', JSON.stringify(marker.getLngLat()));
+          })
+          .on('drag', () => {
+            const markerCoords = marker.getLngLat();
+            console.log('🎯 Marker movido a coordenadas:', {
+              lng: markerCoords.lng.toFixed(6),
+              lat: markerCoords.lat.toFixed(6)
+            });
+            
+            this.markerMoved.emit({
+              lng: markerCoords.lng,
+              lat: markerCoords.lat
+            });
+            
+            this.websocketService.sendMessage({
+              type: 'CLIENT_MOVE',
+              payload: {
+                clientId: this.currentUser!.clientId,
+                coords: { lng: markerCoords.lng, lat: markerCoords.lat },
+              },
+            });
+          })
+          .addTo(this.map);
+
+        this.markers.set(this.currentUser.clientId, marker);
+        console.log('✅ Marker restaurado exitosamente con color:', markerColor);
+        
+        // Emitir coordenadas restauradas para actualizar la UI
+        this.markerMoved.emit(coords);
+        
+      } catch (error) {
+        console.error('❌ Error al parsear coordenadas desde cookies:', error);
+      }
+    } else {
+      console.log('📝 No hay coordenadas en cookies, esperando primer clic del usuario');
+    }
   }
 
   private removeMarker(clientId: string) {
